@@ -174,7 +174,7 @@ export interface ExperimentalConfig {
     logAll?: boolean
     contextDirectory?: string
     processCwd?: string
-    maxFiles?: number
+    /** in `MB` */
     memoryLimit?: number
     skipEntries?: boolean
   }
