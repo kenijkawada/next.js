@@ -176,7 +176,6 @@ export interface ExperimentalConfig {
     processCwd?: string
     /** in `MB` */
     memoryLimit?: number
-    skipEntries?: boolean
   }
   mdxRs?: boolean
   /**

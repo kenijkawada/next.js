@@ -423,7 +423,7 @@ export class TraceEntryPointsPlugin implements webpack.WebpackPluginInstance {
               }
             })
             // startTrace existed and callable
-            if (this.turbotrace && !this.turbotrace.skipEntries) {
+            if (this.turbotrace) {
               let binding = (await loadBindings()) as any
               if (
                 !binding?.isWasm &&

@@ -6,7 +6,6 @@ import { nextBuild } from 'next-test-utils'
 
 const appDir = join(__dirname, '../app')
 
-// skip until SWC fixes the segfault
 describe('build trace with extra entries', () => {
   it('should build and trace correctly', async () => {
     const result = await nextBuild(appDir, undefined, {
