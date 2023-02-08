@@ -6,10 +6,7 @@ import {
   nodeFileTrace,
   NodeFileTraceReasons,
 } from 'next/dist/compiled/@vercel/nft'
-import {
-  TRACE_OUTPUT_VERSION,
-  TURBO_TRACE_DEFAULT_MEMORY_LIMIT,
-} from '../../../shared/lib/constants'
+import { TRACE_OUTPUT_VERSION } from '../../../shared/lib/constants'
 import { webpack, sources } from 'next/dist/compiled/webpack/webpack'
 import {
   NODE_ESM_RESOLVE_OPTIONS,
@@ -109,7 +106,7 @@ export interface TurbotraceAction {
     NextConfigComplete['experimental']['turbotrace']
   >['logLevel']
   showAll?: boolean
-  memoryLimit: number
+  memoryLimit?: number
 }
 
 export interface TurbotraceContext {
@@ -444,9 +441,6 @@ export class TraceEntryPointsPlugin implements webpack.WebpackPluginInstance {
                     processCwd: this.turbotrace?.processCwd ?? this.appDir,
                     logLevel: this.turbotrace?.logLevel,
                     showAll: this.turbotrace?.logAll,
-                    memoryLimit:
-                      this.turbotrace?.memoryLimit ??
-                      TURBO_TRACE_DEFAULT_MEMORY_LIMIT,
                   },
                   appDir: this.appDir,
                   depModArray: Array.from(depModMap.keys()),
@@ -800,9 +794,6 @@ export class TraceEntryPointsPlugin implements webpack.WebpackPluginInstance {
               processCwd: this.turbotrace?.processCwd ?? this.appDir,
               showAll: this.turbotrace?.logAll,
               logLevel: this.turbotrace?.logLevel,
-              memoryLimit:
-                this.turbotrace?.memoryLimit ??
-                TURBO_TRACE_DEFAULT_MEMORY_LIMIT,
             },
           }
         }

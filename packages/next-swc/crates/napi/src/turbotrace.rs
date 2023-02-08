@@ -1,33 +1,30 @@
 use std::sync::Arc;
 
 use napi::bindgen_prelude::*;
-use next_binding::turbo::node_file_trace::{start, Args, CommonArgs};
+use next_binding::turbo::node_file_trace::{start, Args};
+use turbo_tasks::TurboTasks;
+use turbo_tasks_memory::MemoryBackend;
 
 #[napi]
-pub fn run_turbo_tracing(mut env: Env, options: Buffer) -> napi::Result<Object> {
-    let args: Args = serde_json::from_slice(options.as_ref())?;
-    let limit = if let CommonArgs {
-        memory_limit: Some(limit),
-        ..
-    } = match &args {
-        Args::Print { common, .. }
-        | Args::Annotate { common, .. }
-        | Args::Build { common, .. }
-        | Args::Size { common, .. } => common,
-    } {
-        *limit * 1024 * 1024
-    } else {
-        0
-    };
-    env.adjust_external_memory(limit as i64)?;
-    env.execute_tokio_future(
-        async move {
-            let files = start(Arc::new(args)).await?;
-            Ok(files)
-        },
-        move |env, output| {
-            env.adjust_external_memory(-(limit as i64))?;
-            Ok(output)
-        },
+pub fn create_turbo_tasks(memory_limit: Option<u32>) -> External<Arc<TurboTasks<MemoryBackend>>> {
+    let turbo_tasks = TurboTasks::new(MemoryBackend::new(
+        memory_limit.map(|m| m as usize).unwrap_or(usize::MAX),
+    ));
+    External::new_with_size_hint(
+        turbo_tasks,
+        memory_limit
+            .map(|m| (m as usize) * 1024 * 1024)
+            .unwrap_or(usize::MAX),
     )
+}
+
+#[napi]
+pub async fn run_turbo_tracing(
+    options: Buffer,
+    turbo_tasks: External<Arc<TurboTasks<MemoryBackend>>>,
+) -> napi::Result<Vec<String>> {
+    let args: Args = serde_json::from_slice(options.as_ref())?;
+    let turbo_tasks = turbo_tasks.as_ref().clone();
+    let files = start(Arc::new(args), Some(&turbo_tasks)).await?;
+    Ok(files)
 }
